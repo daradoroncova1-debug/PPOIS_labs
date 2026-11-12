@@ -30,6 +30,16 @@ void RubiksCube::initDefaultState() {
   down_face.assign(3, std::vector<Color>(3, Color::YELLOW));
 }
 
+bool RubiksCube::operator==(const RubiksCube &other) const {
+  return front_face == other.front_face && back_face == other.back_face &&
+         left_face == other.left_face && right_face == other.right_face &&
+         up_face == other.up_face && down_face == other.down_face;
+}
+
+bool RubiksCube::operator!=(const RubiksCube &other) const {
+  return !(*this == other);
+}
+
 // Уникальная реализация поворота матрицы (без использования 2-j и i)
 void RubiksCube::spinMatrixClockwise(std::vector<std::vector<Color>> &matrix) {
   std::vector<std::vector<Color>> result(3, std::vector<Color>(3));
@@ -328,6 +338,7 @@ void RubiksCube::display() const {
     std::cout << std::endl;
   }
 }
+
 std::ostream &operator<<(std::ostream &os, const RubiksCube &cube) {
   os << "UP:\n";
   for (const auto &row : cube.up_face) {
@@ -348,4 +359,36 @@ std::ostream &operator<<(std::ostream &os, const RubiksCube &cube) {
     os << "\n";
   }
   return os;
+}
+std::istream &operator>>(std::istream &is, RubiksCube &cube) {
+  auto readColor = [&is]() {
+    char ch;
+    is >> ch;
+    switch (ch) {
+    case 'W':
+      return Color::WHITE;
+    case 'Y':
+      return Color::YELLOW;
+    case 'R':
+      return Color::RED;
+    case 'O':
+      return Color::ORANGE;
+    case 'G':
+      return Color::GREEN;
+    case 'B':
+      return Color::BLUE;
+    default:
+      return Color::WHITE;
+    }
+  };
+  for (auto &row : cube.up_face)
+    for (Color &c : row)
+      c = readColor();
+  for (auto &row : cube.front_face)
+    for (Color &c : row)
+      c = readColor();
+  for (auto &row : cube.down_face)
+    for (Color &c : row)
+      c = readColor();
+  return is;
 }

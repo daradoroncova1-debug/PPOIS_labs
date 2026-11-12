@@ -10,3 +10,9 @@ add_executable(lab1_app
     src/main.cpp 
     src/RubikCube.cpp
 )
+
+add_executable(1lab_tests 
+    tests/test_rubik.cpp 
+    src/RubikCube.cpp
+)
+target_include_directories(1lab_tests PRIVATE headers tests)
