@@ -7,7 +7,6 @@ enum class Face { UP, DOWN, FRONT, BACK, LEFT, RIGHT };
 
 class RubiksCube {
 private:
-  // Матрицы граней
   std::vector<std::vector<Color>> front_face;
   std::vector<std::vector<Color>> back_face;
   std::vector<std::vector<Color>> left_face;
@@ -19,7 +18,6 @@ private:
   void spinMatrixClockwise(std::vector<std::vector<Color>> &matrix);
   void spinMatrixCounterClockwise(std::vector<std::vector<Color>> &matrix);
 
-  // Методы поворота граней (называем их turn...)
   void turnFrontFace(bool isClockwise);
   void turnBackFace(bool isClockwise);
   void turnLeftFace(bool isClockwise);

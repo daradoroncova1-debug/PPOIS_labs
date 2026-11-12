@@ -328,3 +328,24 @@ void RubiksCube::display() const {
     std::cout << std::endl;
   }
 }
+std::ostream &operator<<(std::ostream &os, const RubiksCube &cube) {
+  os << "UP:\n";
+  for (const auto &row : cube.up_face) {
+    for (Color c : row)
+      os << colorToChar(c) << " "; // <-- Используем функцию!
+    os << "\n";
+  }
+  os << "FRONT:\n";
+  for (const auto &row : cube.front_face) {
+    for (Color c : row)
+      os << colorToChar(c) << " ";
+    os << "\n";
+  }
+  os << "DOWN:\n";
+  for (const auto &row : cube.down_face) {
+    for (Color c : row)
+      os << colorToChar(c) << " ";
+    os << "\n";
+  }
+  return os;
+}
