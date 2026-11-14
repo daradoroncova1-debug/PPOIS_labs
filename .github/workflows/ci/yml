@@ -1,0 +1,88 @@
+name: C++ CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "feature/**" ] # Запускать при пуше в эти ветки
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ gcovr cppcheck
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
+      working-directory: ./1lab
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build
+      working-directory: ./1lab
+
+    - name: Run tests
+      run: ./build/lab1_tests
+      working-directory: ./1lab
+
+    - name: Check coverage (>90%)
+      run: |
+        gcovr -r . --fail-under-line 90 --exclude tests/
+      working-directory: ./1lab
+
+    - name: Static analysis
+      run: cppcheck --enable=warning,style --error-exitcode=1 src/
+      working-directory: ./1lab
+
+    - name: Install Doxygen
+      run: |
+        sudo apt-get install -y doxygen
+
+    - name: Generate Doxygen documentation
+      run: doxygen Doxyfile
+      working-directory: ./
+
+    - name: Upload Documentation Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doxygen-documentation
+        path: html/  
+
+  release:
+    needs: build-test-analyze 
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++
+
+    - name: Build Release
+      run: |
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+        cmake --build ${{github.workspace}}/build
+      working-directory: ./1lab
+
+    - name: Package Artifact
+      run: |
+        mkdir -p release_pkg
+        cp ./build/lab1_app release_pkg/
+        zip -r lab1_app-linux.zip release_pkg/
+      working-directory: ./1lab
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: 1lab/1lab_app-linux.zip
+        generate_release_notes: true
