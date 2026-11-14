@@ -40,13 +40,11 @@ bool RubiksCube::operator!=(const RubiksCube &other) const {
   return !(*this == other);
 }
 
-// Уникальная реализация поворота матрицы (без использования 2-j и i)
 void RubiksCube::spinMatrixClockwise(std::vector<std::vector<Color>> &matrix) {
   std::vector<std::vector<Color>> result(3, std::vector<Color>(3));
   for (int row = 0; row < 3; ++row) {
     for (int col = 0; col < 3; ++col) {
-      result[col][2 - row] =
-          matrix[row][col]; // Ставим элемент на новую позицию
+      result[col][2 - row] = matrix[row][col];
     }
   }
   matrix = result;
@@ -63,14 +61,12 @@ void RubiksCube::spinMatrixCounterClockwise(
   matrix = result;
 }
 
-// Уникальный подход: вытаскиваем полоски в векторы и сдвигаем их
 void RubiksCube::turnFrontFace(bool isClockwise) {
   if (isClockwise)
     spinMatrixClockwise(front_face);
   else
     spinMatrixCounterClockwise(front_face);
 
-  // Извлекаем полоски, которые будут двигаться
   std::vector<Color> topStrip = up_face[2];
   std::vector<Color> leftStrip = {left_face[0][2], left_face[1][2],
                                   left_face[2][2]};
@@ -79,7 +75,6 @@ void RubiksCube::turnFrontFace(bool isClockwise) {
                                    right_face[2][0]};
 
   if (isClockwise) {
-    // Двигаем: Left -> Up, Down -> Left, Right -> Down, Up -> Right
     up_face[2] = {leftStrip[2], leftStrip[1], leftStrip[0]};
     for (int i = 0; i < 3; ++i)
       left_face[i][2] = bottomStrip[i];
@@ -343,7 +338,7 @@ std::ostream &operator<<(std::ostream &os, const RubiksCube &cube) {
   os << "UP:\n";
   for (const auto &row : cube.up_face) {
     for (Color c : row)
-      os << colorToChar(c) << " "; // <-- Используем функцию!
+      os << colorToChar(c) << " ";
     os << "\n";
   }
   os << "FRONT:\n";
@@ -358,8 +353,27 @@ std::ostream &operator<<(std::ostream &os, const RubiksCube &cube) {
       os << colorToChar(c) << " ";
     os << "\n";
   }
+  os << "BACK:\n";
+  for (const auto &row : cube.back_face) {
+    for (Color c : row)
+      os << colorToChar(c) << " ";
+    os << "\n";
+  }
+  os << "LEFT:\n";
+  for (const auto &row : cube.left_face) {
+    for (Color c : row)
+      os << colorToChar(c) << " ";
+    os << "\n";
+  }
+  os << "RIGHT:\n";
+  for (const auto &row : cube.right_face) {
+    for (Color c : row)
+      os << colorToChar(c) << " ";
+    os << "\n";
+  }
   return os;
 }
+
 std::istream &operator>>(std::istream &is, RubiksCube &cube) {
   auto readColor = [&is]() {
     char ch;
@@ -388,6 +402,15 @@ std::istream &operator>>(std::istream &is, RubiksCube &cube) {
     for (Color &c : row)
       c = readColor();
   for (auto &row : cube.down_face)
+    for (Color &c : row)
+      c = readColor();
+  for (auto &row : cube.back_face)
+    for (Color &c : row)
+      c = readColor();
+  for (auto &row : cube.left_face)
+    for (Color &c : row)
+      c = readColor();
+  for (auto &row : cube.right_face)
     for (Color &c : row)
       c = readColor();
   return is;
