@@ -78,3 +78,60 @@ TEST_CASE("Display method prints something", "[rubik]") {
   std::cout.rdbuf(old);
   REQUIRE(output.find("UP") != std::string::npos);
 }
+
+TEST_CASE("Inequality operator works correctly", "[rubik]") {
+  RubiksCube cube1;
+  RubiksCube cube2;
+  cube2.rotate(Face::UP, true);
+  REQUIRE(cube1 != cube2);
+}
+
+TEST_CASE("Scramble with 0 moves does nothing", "[rubik]") {
+  RubiksCube cube;
+  cube.scramble(0);
+  REQUIRE(cube.isSolved() == true);
+}
+
+TEST_CASE("Cover all rotation branches", "[rubik]") {
+  RubiksCube cube;
+
+  // Крутим каждую грань в обе стороны по 2 раза (чтобы задеть все if/else)
+  for (int f = 0; f <= 5; f++) {
+    cube.rotate(static_cast<Face>(f), true);
+    cube.rotate(static_cast<Face>(f), true);
+    cube.rotate(static_cast<Face>(f), false);
+    cube.rotate(static_cast<Face>(f), false);
+  }
+
+  // Проверяем, что кубик всё ещё валиден (не сломался)
+  REQUIRE(cube.isSolved() == true);
+}
+
+TEST_CASE("Cover stream operators and copy assignment", "[rubik]") {
+  RubiksCube cube1;
+  cube1.rotate(Face::FRONT, true);
+  cube1.rotate(Face::RIGHT, false);
+
+  // Тест оператора присваивания
+  RubiksCube cube2;
+  cube2 = cube1;
+  REQUIRE(cube1 == cube2);
+
+  // Тест оператора !=
+  cube2.rotate(Face::UP, true);
+  REQUIRE(cube1 != cube2);
+}
+
+TEST_CASE("Stream input reads a solved cube correctly", "[rubik]") {
+  std::string input = "W W W W W W W W W " // UP
+                      "G G G G G G G G G " // FRONT
+                      "Y Y Y Y Y Y Y Y Y " // DOWN
+                      "B B B B B B B B B " // BACK
+                      "O O O O O O O O O " // LEFT
+                      "R R R R R R R R R"; // RIGHT
+
+  std::stringstream ss(input);
+  RubiksCube cube;
+  ss >> cube;
+  REQUIRE(cube.isSolved() == true);
+}
