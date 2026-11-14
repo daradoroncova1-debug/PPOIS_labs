@@ -27,7 +27,7 @@ jobs:
       working-directory: ./1lab
 
     - name: Run tests
-      run: ./build/lab1_tests
+      run: ./build/1lab_tests
       working-directory: ./1lab
 
     - name: Check coverage (>90%)
@@ -84,5 +84,5 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        files: 1lab/1lab_app-linux.zip
+        files: 1lab/lab1_app-linux.zip
         generate_release_notes: true
