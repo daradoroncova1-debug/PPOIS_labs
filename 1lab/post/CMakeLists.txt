@@ -3,6 +3,13 @@
 
 # Бинарники: post_app (приложение), post_tests (тесты)
 
+# Нужно для конфигурирования подпроекта отдельно (как это делает CI)
+cmake_minimum_required(VERSION 3.15)
+project(post CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Флаги покрытия включаем только в Debug-сборке
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-abs-path")

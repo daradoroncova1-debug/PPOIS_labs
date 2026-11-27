@@ -1,3 +1,13 @@
+# 1lab/rubik/CMakeLists.txt
+# Подпроект "Кубик Рубика"
+
+# Нужно для конфигурирования подпроекта отдельно (как это делает CI)
+cmake_minimum_required(VERSION 3.15)
+project(rubik CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-abs-path")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")

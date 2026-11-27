@@ -1,0 +1,62 @@
+name: Lab 1 CI/CD
+
+on:
+  push:
+    branches: [ "main", "dev", "feature/**" ]
+    paths:
+      - "1lab/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [ "main", "dev" ]
+    paths:
+      - "1lab/**"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  build-test-analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lab: 1lab
+            sub:  rubik
+            path: 1lab/rubik
+            test_binary: rubik_tests
+            app_binary:  rubik_app
+          - lab: 1lab
+            sub:  post
+            path: 1lab/post
+            test_binary: post_tests
+            app_binary:  post_app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gcovr cppcheck catch2 doxygen
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+        working-directory: ${{ matrix.path }}
+      - name: Build
+        run: cmake --build build
+        working-directory: ${{ matrix.path }}
+      - name: Run tests
+        run: ./build/${{ matrix.test_binary }}
+        working-directory: ${{ matrix.path }}
+      - name: Coverage
+        run: gcovr -r . --fail-under-line 90 --exclude tests/ --exclude '.*main\.cpp' --object-directory build
+        working-directory: ${{ matrix.path }}
+      - name: Static analysis
+        run: cppcheck --enable=warning,style --error-exitcode=1 src/
+        working-directory: ${{ matrix.path }}
+      - name: Doxygen
+        run: doxygen Doxyfile
+        working-directory: ${{ matrix.path }}
+      - name: Upload docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.lab }}-${{ matrix.sub }}-docs
+          # Doxyfile пишет вывод в docs/<lab>/<sub>/html (путь от корня репозитория)
+          path: docs/${{ matrix.lab }}/${{ matrix.sub }}/html/
+        
