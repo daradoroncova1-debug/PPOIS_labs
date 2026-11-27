@@ -1,4 +1,5 @@
 #include "RubikCube.h"
+#include <algorithm>
 #include <iostream>
 #include <random>
 
@@ -281,13 +282,14 @@ void RubiksCube::scramble(int moves) {
 }
 
 bool RubiksCube::isSolved() const {
+  // Грань одноцветна, если каждая ячейка равна цвету левого верхнего угла.
   auto checkFace = [](const std::vector<std::vector<Color>> &f) {
-    Color first = f[0][0];
-    for (const auto &row : f)
-      for (Color c : row)
-        if (c != first)
-          return false;
-    return true;
+    const Color first = f[0][0];
+    return std::all_of(
+        f.begin(), f.end(), [first](const std::vector<Color> &row) {
+          return std::all_of(row.begin(), row.end(),
+                             [first](Color c) { return c == first; });
+        });
   };
   return checkFace(front_face) && checkFace(back_face) &&
          checkFace(left_face) && checkFace(right_face) && checkFace(up_face) &&
@@ -395,23 +397,17 @@ std::istream &operator>>(std::istream &is, RubiksCube &cube) {
       return Color::WHITE;
     }
   };
-  for (auto &row : cube.up_face)
-    for (Color &c : row)
-      c = readColor();
-  for (auto &row : cube.front_face)
-    for (Color &c : row)
-      c = readColor();
-  for (auto &row : cube.down_face)
-    for (Color &c : row)
-      c = readColor();
-  for (auto &row : cube.back_face)
-    for (Color &c : row)
-      c = readColor();
-  for (auto &row : cube.left_face)
-    for (Color &c : row)
-      c = readColor();
-  for (auto &row : cube.right_face)
-    for (Color &c : row)
-      c = readColor();
+  // Заполняем каждую грань построчно с помощью std::generate.
+  auto readFace = [&readColor](std::vector<std::vector<Color>> &face) {
+    for (auto &row : face) {
+      std::generate(row.begin(), row.end(), readColor);
+    }
+  };
+  readFace(cube.up_face);
+  readFace(cube.front_face);
+  readFace(cube.down_face);
+  readFace(cube.back_face);
+  readFace(cube.left_face);
+  readFace(cube.right_face);
   return is;
 }
