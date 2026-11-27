@@ -64,7 +64,7 @@ jobs:
           name: ${{ matrix.lab }}-${{ matrix.sub }}-docs
           # Doxyfile пишет вывод в docs/<lab>/<sub>/html (путь от корня репозитория)
           path: docs/${{ matrix.lab }}/${{ matrix.sub }}/html/
-            - name: Package Application
+      - name: Package Application
         run: |
           mkdir -p release_artifacts
           
