@@ -64,4 +64,27 @@ jobs:
           name: ${{ matrix.lab }}-${{ matrix.sub }}-docs
           # Doxyfile пишет вывод в docs/<lab>/<sub>/html (путь от корня репозитория)
           path: docs/${{ matrix.lab }}/${{ matrix.sub }}/html/
-        
+      - name: Package Application
+        run: |
+          mkdir -p release_artifacts
+          cp build/${{ matrix.app_binary }} release_artifacts/
+          
+          # Копируем зависимости
+          ldd build/${{ matrix.app_binary }} | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' release_artifacts/ || true
+          
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${{ github.ref_name }}
+          else
+            VERSION=${{ github.sha }}
+          fi
+          
+          tar -czvf ${{ matrix.sub }}_app-${VERSION}.tar.gz -C release_artifacts .
+
+      - name: Upload Release Asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.path }}/${{ matrix.sub }}_app-${{ github.ref_name }}.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
