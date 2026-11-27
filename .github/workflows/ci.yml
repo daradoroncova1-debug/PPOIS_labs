@@ -92,10 +92,10 @@ jobs:
           
           tar -czvf ${{ matrix.sub }}_app-${VERSION}.tar.gz -C release_artifacts .
       - name: Upload Release Asset
+        if: startsWith(github.ref, 'refs/tags/') 
         uses: softprops/action-gh-release@v2
         with:
           files: "**/*.tar.gz"
           generate_release_notes: true
-          tag_name: "latest-build"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
