@@ -135,3 +135,24 @@ TEST_CASE("Stream input reads a solved cube correctly", "[rubik]") {
   ss >> cube;
   REQUIRE(cube.isSolved() == true);
 }
+
+TEST_CASE("Stream input treats unknown color letter as white", "[rubik]") {
+  // 'Z' не является цветом кубика — readColor() должен вернуть WHITE (default)
+  std::string input = "Z Z Z Z Z Z Z Z Z " // UP   -> WHITE
+                      "Z Z Z Z Z Z Z Z Z " // FRONT-> WHITE
+                      "Z Z Z Z Z Z Z Z Z " // DOWN -> WHITE
+                      "Z Z Z Z Z Z Z Z Z " // BACK -> WHITE
+                      "Z Z Z Z Z Z Z Z Z " // LEFT -> WHITE
+                      "Z Z Z Z Z Z Z Z Z"; // RIGHT-> WHITE
+
+  std::stringstream ss(input);
+  RubiksCube cube;
+  ss >> cube;
+  // Все грани стали белыми — значит каждая из них "одноцветная"
+  REQUIRE(cube.isSolved() == true);
+
+  std::stringstream out;
+  out << cube;
+  REQUIRE(out.str().find("W") != std::string::npos);
+  REQUIRE(out.str().find("Z") == std::string::npos);
+}
