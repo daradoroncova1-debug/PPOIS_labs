@@ -1,5 +1,8 @@
 name: Lab 1 CI/CD
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ "main", "dev", "feature/**" ]
